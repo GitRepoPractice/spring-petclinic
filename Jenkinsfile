@@ -4,27 +4,31 @@ pipeline {
         cron('45 23 * * 1-5')
         pollSCM('*/5 * * * *')
     }
-    environment {
-        CI = true
-        ARTIFACTORY_ACCESS_TOKEN = credentials('JFROG-ARTIFACTORY')
-    }
+	tools {
+		maven 'MVN_3.8.6'
+	}
     stages {
         stage('scm') {
             steps {
-
-                git url: 'https://github.com/GitPracticeRepo/spring-petclinic.git', branch: 'main'
+               
+                git url: 'https://github.com/GitRepoPractice/spring-petclinic.git', branch: 'main'
             }
         }
         stage('build') {
             steps {
-                withSonarQubeEnv(installationName: 'SONAR_8.9.10', envOnly: true, credentialsId: 'SONAR_TOKEN') {
-                    sh "/usr/local/apache-maven-3.8.6/bin/mvn clean package sonar:sonar"
-					echo "${env.SONAR_HOST_URL}"
-
+                withSonarQubeEnv(installationName: 'SONAR_8.9.10') {
+                    sh "mvn clean package sonar:sonar"                                  
                 }
-
+            }
+        }
+		stage("Quality Gate") {
+            steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
+                    // true = set pipeline to UNSTABLE, false = don't
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
     }
-
 }
