@@ -4,6 +4,10 @@ pipeline {
         cron('45 23 * * 1-5')
         pollSCM('*/5 * * * *')
     }
+    environment {
+        CI = true
+        ARTIFACTORY_ACCESS_TOKEN = credentials('JFROG-ARTIFACTORY')
+    }
     stages {
         stage('scm') {
             steps {
