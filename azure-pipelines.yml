@@ -4,31 +4,31 @@ trigger:
 pool: 
   name: default  
 schedules:
-  - corn: '*/30 * * * *' 
+  - cron: '*/30 * * * *' 
     displayName: 'Day build'
     branches:
       include: 
         - main
       exclude: 
         - jfrog
-    always: no 
-  - corn: '30 23 * * 1-5' 
+    always: false 
+  - cron: '30 23 * * 1-5' 
     displayName: 'Night build'
     branches:
       include: 
         - main
       exclude: 
         - jfrog
-    always: yes    
+    always: true    
 stages:
   - stage: 'Build'
     displayName: 'Build SPC'
     jobs: 
       - job: 'buildjob'
         displayName: 'Build the job'
-        continueOnError: no
+        continueOnError: true
         workspace: 
-          claen: outputs
+          clean: outputs
         steps:
           - task: Maven@3
             inputs:
